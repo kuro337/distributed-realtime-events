@@ -1,0 +1,71 @@
+logging:
+  logLevel: info
+  usageStats:
+    enabled: false
+
+console:
+  enabled: false
+
+external:
+  enabled: true
+  type: NodePort
+  domain: customredpandadomain.local
+  service:
+    enabled: true
+
+
+statefulset:
+  # Number of Redpanda brokers (recommend setting is the number of nodes in the cluster)
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  budget:
+    maxUnavailable: 1
+  startupProbe:
+    initialDelaySeconds: 1
+    failureThreshold: 120
+    periodSeconds: 10
+  livenessProbe:
+    initialDelaySeconds: 10
+    failureThreshold: 3
+    periodSeconds: 10
+  readinessProbe:
+    initialDelaySeconds: 1
+    failureThreshold: 3
+    periodSeconds: 10
+    successThreshold: 1
+
+listeners:
+  kafka:
+    enabled: true
+  #   port: 9093
+    tls:
+      enabled: false
+  #     cert: default
+  #     requireClientAuth: false
+  #   external:
+  #     default:
+  #       enabled: true
+  #       port: 9094
+  #       advertisedPorts:
+  #       - 31092
+  #       tls:
+  #         enabled: false
+  # http:
+  #   enabled: true
+  #   port: 8082
+  #   kafkaEndpoint: default
+  #   tls:
+  #     enabled: false
+  #     cert: default
+  #     requireClientAuth: false
+  #   external:
+  #     default:
+  #       port: 8083
+  #       advertisedPorts:
+  #       - 30082
+  #       tls:
+  #         enabled: true
+
+tls:
+  enabled: false
