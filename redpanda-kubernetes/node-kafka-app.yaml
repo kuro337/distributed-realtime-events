@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kefka-app
+  name: redpanda-node-app
   namespace: redpanda
   labels:
-    k8s-app: kefka-app
+    k8s-app: redpanda-node-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: kefka-app
+      k8s-app: redpanda-node-app
   template:
     metadata:
-      name: kefka-app
+      name: redpanda-node-app
       labels:
-        k8s-app: kefka-app
+        k8s-app: redpanda-node-app
     spec:
       containers:
-        - name: kefka-app
+        - name: redpanda-node-app
           image: redpanda-app
           imagePullPolicy: Never
           securityContext:

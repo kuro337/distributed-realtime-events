@@ -1,6 +1,18 @@
-# Redpanda Cluster + Real Time Applications 
+# Redpanda Cluster with Real Time Event Streaming Applications 
+
+
+```bash
+██████╗ ██╗   ██╗██████╗     ███████╗██╗   ██╗██████╗ 
+██╔══██╗██║   ██║██╔══██╗    ██╔════╝██║   ██║██╔══██╗
+██████╔╝██║   ██║██████╔╝    ███████╗██║   ██║██████╔╝
+██╔═══╝ ██║   ██║██╔══██╗    ╚════██║██║   ██║██╔══██╗
+██║     ╚██████╔╝██████╔╝    ███████║╚██████╔╝██████╔╝
+╚═╝      ╚═════╝ ╚═════╝     ╚══════╝ ╚═════╝ ╚═════╝ 
+                                                      
+```
 
 - Repo:
+
   - Full Redpanda Cluster with 3 Brokers running on Kubernetes
 
   - Applications to consume and produce events from the Central Cluster
@@ -25,7 +37,8 @@ wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 ```bash
 
 # Create cluster
-k3d cluster create test-cluster
+
+k3d cluster create event-streaming
 
 ```
 
@@ -86,11 +99,11 @@ kubectl -n kubernetes-dashboard create token admin-user
 
 ```bash
 # BUILD image
- docker build -t redpanda-app .
+docker build -t redpanda-node-app .
 
- # Import image
+# Import image
 
- k3d image import redpanda-app -c test-cluster
+k3d image import redpanda-node-app -c event-streaming
 
 ```
 
@@ -106,7 +119,7 @@ kubectl -n kubernetes-dashboard create token admin-user
  ```bash
 kubectl create namespace redpanda
 
-kubectl apply -f ./redpanda/deploy-app.yaml
+kubectl apply -f ./redpanda/node-kafka-app.yaml
 ```
 
 Make sure everything is working...
@@ -152,17 +165,47 @@ redpanda   1/1     3h45m
 - Get the name of "kafla app" pod (using ```kubectl get pod -n redpanda```)
 
 - Log into the "kafka app" pod
-    ```
-    kubectl exec -n redpanda -it kefka-app-6d46cb8bb6-f6rpv -- /bin/sh
-    ```
 
-- check redpanda cluster (using rpk)
+```bash
+kubectl exec -n redpanda -it redpanda-node-app-6d46cb8bb6-5nwl4 -- /bin/sh
+```
 
-    ```bash
-    ./rpk cluster info --brokers redpanda-0.redpanda.redpanda.svc.cluster.local.:9093
-    ```
+- Check Redpanda Cluster (using rpk)
+
+```bash
+./rpk cluster info --brokers redpanda-0.redpanda.redpanda.svc.cluster.local.:9093
+```
+
 - Run the chat room sample app (You need to log into two separate terminals and run the same app)
-    ```bash
-    node ./src/index.mjs
-    ```
-    
+
+```bash
+node ./src/index.mjs
+
+```
+
+- Building Java App and importing to Cluster (can use an Image from your Image Repo as well)
+
+```bash
+./gradlew fatJar
+
+docker build -t redpanda-java-app:latest -f Dockerfile ..
+
+k3d image import redpanda-java-app:latest -c event-streaming
+
+```
+
+- Run the JVM App that sends and produces messages
+
+```bash
+kubectl apply -f java-kafka-app.yaml
+
+# Get correct deployment value by checking kubectl pods -n redpanda
+
+kubectl exec -n redpanda -it redpanda-java-app-c67c4ddd9-62gdq -- /bin/sh
+
+# Run java app
+java -jar app.jar
+
+# Now you can send messages - 
+# Or type poll to use the Consumer Group and offsets to retrieve latest messages
+```

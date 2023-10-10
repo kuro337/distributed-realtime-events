@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda-java-app
+  namespace: redpanda
+  labels:
+    k8s-app: redpanda-java-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: redpanda-java-app
+  template:
+    metadata:
+      labels:
+        k8s-app: redpanda-java-app
+    spec:
+      containers:
+        - name: redpanda-java-app
+          image: redpanda-java-app:latest
+          imagePullPolicy: IfNotPresent
